@@ -17,18 +17,20 @@ RUN ln -s -f /usr/bin/python${PYTHON_VERSION} /usr/bin/python3 && \
 
 RUN pip install --upgrade pip
 
-RUN apt-get update && apt-get -y install libsndfile1-dev 
-
 # 2. Copy files
 COPY . /src
 
-RUN pip install torch==1.12.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
+# RUN pip install torch==1.12.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
+# Attempt at getting GPU support
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
 
 WORKDIR /src
 # 3. Install dependencies
 RUN pip install -r requirements-docker.txt
+#Install fun top to see whats going on
+RUN pip install --upgrade nvitop
 
 RUN python3 setup.py install
 
-
-
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
